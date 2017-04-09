@@ -33,7 +33,7 @@ class PdfBookHooks {
 			$notitle  = self::setProperty( 'notitle', '', '' );
 			$comments = $wgAjaxComments ? self::setProperty( 'comments', '', false ) : '';
 			$layout   = $format == 'single' ? '--webpage' : '--firstpage toc';
-			$charset  = self::setProperty( 'Charset',     'iso-8859-1' );
+			$charset  = self::setProperty( 'Charset',     'utf8' );
 			$left     = self::setProperty( 'LeftMargin',  '1cm' );
 			$right    = self::setProperty( 'RightMargin', '1cm' );
 			$top      = self::setProperty( 'TopMargin',   '1cm' );
@@ -86,7 +86,8 @@ class PdfBookHooks {
 			if( !file_exists( $cache ) ) {
 
 				// Format the article(s) as a single HTML document with absolute URL's
-				$html = '';
+				$html = '<!DOCTYPE html><html><body><link rel="stylesheet" href="/load.php?debug=false&amp;lang=he&amp;modules=mediawiki.legacy.commonPrint%2Cshared"/>';
+        $html .= '<style>.noprint {display: none}</style>';
 				$wgArticlePath = $wgServer . $wgArticlePath;
 				$wgPdfBookTab  = false;
 				$wgScriptPath  = $wgServer . $wgScriptPath;
@@ -106,8 +107,10 @@ class PdfBookHooks {
 							$text    = preg_replace( "|(<img[^>]+?src=\")(/.+?>)|", "$1$wgServer$2", $text );      // make image urls absolute
 						} else {
 							$pUrl    = parse_url( $wgScriptPath ) ;
-							$imgpath = str_replace( '/' , '\/', $pUrl['path'] . '/' . basename( $wgUploadDirectory ) ) ; // the image's path
-							$text    = preg_replace( "|(<img[^>]+?src=\"$imgpath)(/.+?>)|", "<img src=\"$wgUploadDirectory$2", $text );
+              if (isset($pUrl['path'])) {
+							  $imgpath = str_replace( '/' , '\/', $pUrl['path'] . '/' . basename( $wgUploadDirectory ) ) ; // the image's path
+							  $text    = preg_replace( "|(<img[^>]+?src=\"$imgpath)(/.+?>)|", "<img src=\"$wgUploadDirectory$2", $text );
+              }
 						}
 						if( $nothumbs == 'true') $text = preg_replace( "|images/thumb/(\w+/\w+/[\w\.\-]+).*\"|", "images/$1\"", $text ); // Convert image links from thumbnail to full-size
 						$text    = preg_replace( "|<div\s*class=['\"]?noprint[\"']?>.+?</div>|s", "", $text );     // non-printable areas
@@ -120,48 +123,18 @@ class PdfBookHooks {
 							$comments = $wgAjaxComments->onUnknownAction( 'ajaxcommentsinternal', $article );
 						}
 
-						$html .= utf8_decode( "$h1$text\n$comments" );
+						$html .= "$h1$text\n$comments";
 					}
 				}
+        $html .= "</body></html>";
 
 				// Build the cache file
-				if( $format == 'html' ) file_put_contents( $cache, $html );
-				else {
-
-					// Write the HTML to a tmp file
-					if( !is_dir( $wgUploadDirectory ) ) mkdir( $wgUploadDirectory );
-					$file = $wgUploadDirectory . '/' . uniqid( 'pdf-book' );
-					file_put_contents( $file, $html );
-
-					// Build the htmldoc command
-					$footer = $format == 'single' ? "..." : ".1.";
-					$toc = $format == 'single' ? "" : " --toclevels $levels";
-					$cmd  = "--left $left --right $right --top $top --bottom $bottom"
-						. " --header ... --footer $footer --headfootsize 8 --quiet --jpeg --color"
-						. " --bodyfont $font --fontsize $size --fontspacing $ls --linkstyle plain --linkcolor $linkcol"
-						. "$toc --no-title --numbered --charset $charset $options $layout $width";
-					$cmd = $format == 'htmltoc'
-						? "htmldoc -t html --format html $cmd \"$file\" "
-						: "htmldoc -t pdf --format pdf14 $cmd \"$file\" ";
-
-					// Execute the command outputting to the cache file
-					putenv( "HTMLDOC_NOCGI=1" );
-					shell_exec( "$cmd > \"$cache\"" );
-					unlink( $file );
-				}
-			}
+				file_put_contents( $cache, $html );
+      }
 
 			// Output the cache file
 			$wgOut->disable();
-			if( $format == 'html' || $format == 'htmltoc' ) {
-				header( "Content-Type: text/html" );
-				header( "Content-Disposition: attachment; filename=\"$book.html\"" );
-			} else {
-				header( "Content-Type: application/pdf" );
-				if( $wgPdfBookDownload ) header( "Content-Disposition: attachment; filename=\"$book.pdf\"" );
-				else header( "Content-Disposition: inline; filename=\"$book.pdf\"" );
-			}
-			readfile( $cache );
+			echo file_get_contents( $cache );
 
 			return false;
 		}

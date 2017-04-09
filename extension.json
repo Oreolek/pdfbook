@@ -1,0 +1,25 @@
+{
+	"name": "PdfBook",
+	"version": "1.5.0, 2016-12-01",
+	"author": ["[http://www.organicdesign.co.nz/aran Aran Dunkley]"],
+	"url": "http://www.mediawiki.org/wiki/Extension:TreeAndMenu",
+	"description": "pdfbook-desc",
+	"license-name": "[https://www.gnu.org/licenses/gpl-2.0.html GNU General Public Licence 2.0] or later",
+	"type": "parserhook",
+	"callback": "PdfBookHooks::onRegistration",
+	"config": {
+		"wgPdfBookTab": false,           "@": "Whether or not an action tab is wanted for printing to PDF",
+		"wgPdfBookDownload": true,       "@": "Whether the files should be downloaded or view in-browser"
+	},
+	"Hooks": {
+		"UnknownAction": ["PdfBookHooks::onUnknownAction"],
+		"SkinTemplateTabs": ["PdfBookHooks::onSkinTemplateTabs"],
+		"SkinTemplateNavigation": ["PdfBookHooks::onSkinTemplateNavigation"]
+	},
+	"AutoloadClasses": {
+		"PdfBookHooks": "PdfBook.hooks.php"
+	},
+	"MessagesDirs": {
+		"PdfBook": ["i18n"]
+	}
+}

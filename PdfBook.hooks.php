@@ -87,7 +87,7 @@ class PdfBookHooks {
 
 				// Format the article(s) as a single HTML document with absolute URL's
 				$html = '<!DOCTYPE html><html><body><link rel="stylesheet" href="/load.php?debug=false&amp;lang=he&amp;modules=mediawiki.legacy.commonPrint%2Cshared"/>';
-        $html .= '<style>.noprint {display: none}</style>';
+        $html .= '<style>body{ margin: 1em 15%;} .noprint {display: none}</style>';
 				$wgArticlePath = $wgServer . $wgArticlePath;
 				$wgPdfBookTab  = false;
 				$wgScriptPath  = $wgServer . $wgScriptPath;
@@ -116,7 +116,7 @@ class PdfBookHooks {
 						$text    = preg_replace( "|<div\s*class=['\"]?noprint[\"']?>.+?</div>|s", "", $text );     // non-printable areas
 						$text    = preg_replace( "|@{4}([^@]+?)@{4}|s", "<!--$1-->", $text );                      // HTML comments hack
 						$ttext   = basename( $ttext );
-						$h1      = $notitle ? "" : "<center><h1>$ttext</h1></center>";
+						$h1      = $notitle ? "" : "<center><h1><a href='/index.php/$ttext'>$ttext</a></h1></center>";
 
 						// Add comments if selected and AjaxComments is installed
 						if( $comments ) {

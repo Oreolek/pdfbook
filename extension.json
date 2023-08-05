@@ -8,8 +8,10 @@
 	"type": "parserhook",
 	"callback": "PdfBookHooks::onRegistration",
 	"config": {
-		"wgPdfBookTab": false,           "@": "Whether or not an action tab is wanted for printing to PDF",
-		"wgPdfBookDownload": true,       "@": "Whether the files should be downloaded or view in-browser"
+		"wgPdfBookTab": false,
+    "commentTab": "Whether or not an action tab is wanted for printing to PDF",
+		"wgPdfBookDownload": true,
+    "commentDownload": "Whether the files should be downloaded or view in-browser"
 	},
 	"Hooks": {
 		"UnknownAction": ["PdfBookHooks::onUnknownAction"],

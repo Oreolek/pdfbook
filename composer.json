@@ -11,5 +11,8 @@
     "allow-plugins": {
       "composer/installers": true
     }
+  },
+  "extra": {
+    "installer-name": "PdfBook"
   }
 }
